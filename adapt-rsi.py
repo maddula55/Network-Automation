@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Adapt-RSI is a script to extract configuration from a file containing junos RSI output 
-and adapt the configuration to use it in a Juniper Ultralab device. 
+and adapt the configuration to use it in a lab device. 
 Script will extract the config from RSI and remove config elements that might affect 
 the connectivity to the device. Based on the no. of FPCs in target lab device, script 
 will remove invalid fpc configuration and modify invalid interface names with dummy interface names.
