@@ -1,0 +1,263 @@
+# fpc_slots_in_chassis contains device models and no. of FPC slots available in that particular model
+# this data is used to find out whether no. of FPCs on the type of device from RSI is greater than the
+# number of fpcs in the target device. Based on the result, script can delete fpc configuration statements
+# under [edit chassis] and rename interfaces that has FPC number larger than the no. of FPCs the target device can support
+# with dummy interface names. This helps in completing configuraiton commit successfully.
+fpc_slots_in_chassis:
+  MX2008: 10
+  MX2010: 10
+  MX2020: 20
+  MX240: 3
+  MX480: 4
+  MX80: 1
+  MX960: 12
+  PTX10008: 8
+  PTX10008: 16
+  PTX10003: 4
+  VMX: 12
+  MX10003: 2
+  PTX1000: 1
+  QFX10008: 8
+  MX10008: 8
+  MX304: 1
+  PTX10001: 1
+  PTX10002: 1
+
+# Configuration hierarchies mentioned in skip_hierarchy_list will not be applied to the device.
+# This helps in skipping configuration in RSI that might affect connectivity to lab device.
+# If the configuration hierarchy contains a custom name, use <*>. For example, if you
+# want to skip fxp0 hierarchy under any group config, you can use groups\<*>\interfaces\fxp0
+# This will make the script go through all groups under groups hierarchy and delete fxp0 config from each of them
+skip_hierarchy_list:
+  - 'system\ntp'
+  - 'groups\<*>\system\ntp'
+  - 'system\name-server'
+  - 'groups\<*>\system\name-server'
+  - 'system\accounting'
+  - 'groups\<*>\system\accounting'
+  - 'interfaces\fxp0'
+  - 'groups\<*>\interfaces\fxp0'
+  - 'interfaces\em0'
+  - 'groups\<*>\interfaces\em0'
+  - 'interfaces\re0:mgmt-0'
+  - 'groups\<*>\interfaces\re0:mgmt-0'
+  - 'system\ports\console'
+  - 'groups\<*>\system\ports\console'
+  - 'system\root-authentication'
+  - 'groups\<*>\system\root-authentication'
+  - 'system\services\ssh'
+  - 'groups\<*>\system\services\ssh'
+  - 'system\services\netconf'
+  - 'groups\<*>\system\services\netconf'
+  - 'system\radius-server'
+  - 'groups\<*>\system\radius-server'
+  - 'system\services\xnm-ssl'
+  - 'groups\<*>\system\services\xnm-ssl'
+  - 'interfaces\lo0\unit 0\family inet\filter'
+  - 'groups\<*>\interfaces\lo0\unit 0\family inet\filter'
+  - 'interfaces\lo0\unit <*>\family inet\filter'
+  - 'groups\<*>\interfaces\lo0\unit <*>\family inet\filter'
+  - 'groups\<*>\routing-options\static\route 0.0.0.0/0'
+  - 'routing-options\static\route 0.0.0.0/0'
+
+# Configuration statements mentioned in skip_statement_list will not be applied to the device.
+# This helps in skipping configuration in RSI that might affect connectivity to lab device.
+# If the configuration statement is under a hierarchy having a custom name, use <*>. For example, if you
+# want to skip default static route config statement under routing-options in any group config, you can use groups\<*>\routing-options\static\route 0.0.0.0/0
+# This will make the script go through all groups under groups hierarchy and delete default static route config statement under routing-options from each of them
+skip_statement_list:
+  - 'system\authentication-order'
+  - 'groups\<*>\system\authentication-order'
+  - 'system\management-instance'
+  - 'groups\<*>\system\management-instance'
+  - 'system\backup-router'
+  - 'groups\<*>\system\backup-router'
+  - 'system\domain-name'
+  - 'groups\<*>\system\domain-name'
+  - 'routing-options\static\route 0.0.0.0/0'
+  - 'groups\<*>\routing-options\static\route 0.0.0.0/0'
+
+# Currently we have two junos file name formats. One format for non-occam (pre 15.1) and another one for occam images (post 15.1). 
+# This configuration option provides flexibility in handling multiple junos image name formats.
+junos_image_name_format_selector:
+  junos_image_name_format_1:
+    from: 1
+    to: 14
+  junos_image_name_format_2:
+    from: 15
+    to: 15
+  junos_image_name_format_3:
+    from: 16
+    to: 50
+
+# For each image name format defined in junos_image_name_format_selector, 
+# configuration item junos_image_name_format_map defines junos image format for each Routing-Engine type
+# New entries can be added for new RE types. the text "VERSION_NUMBER" will be replaced by the script
+# with the version number fetched from RSI. For example, if the RSI file is of version 15.1F5-S6.8,
+# and the target device is having RE-S-1800x4, script will use the image name as junos-install-mx-x86-32-15.1F5-S6.8.tgz
+junos_image_name_format_map:
+  junos_image_name_format_1:
+    RE-DUO-2600: jinstall64-VERSION_NUMBER-domestic-signed.tgz
+    RE-MX80: jinstall-ppc-VERSION_NUMBER-domestic-signed.tgz
+    RE-S-1800x4: jinstall64-VERSION_NUMBER-domestic-signed.tgz
+    RE-S-2000: jinstall-VERSION_NUMBER-domestic-signed.tgz
+  junos_image_name_format_2:
+    RE-DUO-2600: jinstall64-VERSION_NUMBER-domestic-signed.tgz
+    RE-MX80: jinstall-ppc-VERSION_NUMBER-domestic-signed.tgz
+    RE-PTX-2X00x4: junos-vmhost-install-ptx-x86-64-VERSION_NUMBER.tgz
+    RE-PTX-2X00x6: junos-vmhost-install-ptx-x86-64-VERSION_NUMBER.tgz
+    RE-PTX-2X00x8: junos-vmhost-install-ptx-x86-64-VERSION_NUMBER.tgz
+    RE-S-1800x4: junos-install-mx-x86-64-VERSION_NUMBER.tgz
+    RE-S-2000: junos-install-mx-x86-32-VERSION_NUMBER.tgz
+    RE-S-2X00x6: junos-vmhost-install-mx-x86-64-VERSION_NUMBER.tgz
+    RE-S-2X00x8: junos-vmhost-install-mx-x86-64-VERSION_NUMBER.tgz
+    RE-PTX1000: junos-vmhost-install-ptx-x86-64-VERSION_NUMBER.tgz
+  junos_image_name_format_3:
+    RE-DUO-2600: jinstall64-VERSION_NUMBER-domestic-signed.tgz
+    RE-MX80: jinstall-ppc-VERSION_NUMBER-signed.tgz
+    RE-PTX-2X00x4: junos-vmhost-install-ptx-x86-64-VERSION_NUMBER.tgz
+    RE-PTX-2X00x6: junos-vmhost-install-ptx-x86-64-VERSION_NUMBER.tgz
+    RE-PTX-2X00x8: junos-vmhost-install-ptx-x86-64-VERSION_NUMBER.tgz
+    RE-S-1800x4: junos-install-mx-x86-64-VERSION_NUMBER.tgz
+    RE-S-2000: junos-install-mx-x86-32-VERSION_NUMBER.tgz
+    RE-S-2X00x6: junos-vmhost-install-mx-x86-64-VERSION_NUMBER.tgz
+    RE-S-2X00x8: junos-vmhost-install-mx-x86-64-VERSION_NUMBER.tgz
+    RE-S-1600x8: junos-vmhost-install-mx-x86-64-VERSION_NUMBER.tgz
+    RE-PTX1000: junos-vmhost-install-ptx-x86-64-VERSION_NUMBER.tgz
+    RE X10: junos-vmhost-install-mx-x86-64-VERSION_NUMBER.tgz
+    JNP10K-RE1-E: junos-evo-install-ptx-x86-64-VERSION_NUMBER-EVO.iso
+    JNP10K-RE1-ELT: junos-evo-install-ptx-x86-64-VERSION_NUMBER-EVO.iso
+    JNP10K-RE1-E128: junos-evo-install-ptx-x86-64-VERSION_NUMBER-EVO.iso
+    RE-JNP10003-80C: junos-evo-install-ptx-fixed-x86-64-VERSION_NUMBER-EVO.iso
+    RE-JNP10003-160C: junos-evo-install-ptx-fixed-x86-64-VERSION_NUMBER-EVO.iso
+    RE-QFX5220-32CD: junos-evo-install-qfx-ms-fixed-x86-64-VERSION_NUMBER-EVO.iso
+    RE-QFX5220-128C: junos-evo-install-qfx-ms-fixed-x86-64-VERSION_NUMBER-EVO.iso
+    JNP304-RE-S: junos-vmhost-install-mx-x86-64-VERSION_NUMBER-EVO.tgz
+    RE-JNP10001-36MR: junos-evo-install-ptx-fixed-x86-64-VERSION_NUMBER-EVO.iso
+# configuration item junos_image_location_map is used to list the known locations to search for
+# junos images. Script will replace the text MAJOR_VERSION_NUMBER and VERSION_NUMBER in the image location format
+# based on the version junos version to be installed (identified from RSI) and the type of RE in target device.
+# For example, if the RSI file is of version 15.1F5-S6.8, and the target device is having RE-S-1800x4, 
+# script will use the image location path: /volume/build/junos/15.1/release/15.1F5-S6.8/ship/
+# when more than one location format is specified, script will go through each location and use the first location in
+# the list that has a valid image file. Currently all location path format requires the text MAJOR_VERSION_NUMBER and 
+# and VERSION_NUMBER to be present in the format.
+junos_image_location_map:
+  RE-MX80: 
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER/ship/
+  RE-S-2000: 
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER/ship/
+  RE-S-1800x4: 
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER/ship/
+  RE-S-2X00x6: 
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER/ship/
+  RE-S-2X00x8: 
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER/ship/
+  RE-DUO-2600: 
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER/ship/
+  RE-PTX-2X00x6: 
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER/ship/
+  RE-PTX-2X00x8: 
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER/ship/
+  RE-PTX-2X00x4: 
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER/ship/
+  RE-S-1600x8:
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER/ship/
+  RE-PTX1000:
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER/ship/
+  RE X10:
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/service/VERSION_NUMBER/ship/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER-images/
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/production/VERSION_NUMBER/ship/
+  JNP10K-RE1-E: 
+    - /volume/evoimages/release/evo/rel/VERSION_NUMBER/
+  JNP10K-RE1-ELT:
+    - /volume/evoimages/release/evo/rel/VERSION_NUMBER/
+  JNP10K-RE1-E128:
+    - /volume/evoimages/release/evo/rel/VERSION_NUMBER/
+  RE-JNP10003-80C:
+    - /volume/evoimages/release/evo/rel/VERSION_NUMBER/
+  RE-JNP10003-160C:
+    - /volume/evoimages/release/evo/rel/VERSION_NUMBER/
+  RE-QFX5220-32CD:
+    - /volume/evoimages/release/evo/rel/VERSION_NUMBER/
+  RE-QFX5220-128C:
+    - /volume/evoimages/release/evo/rel/VERSION_NUMBER/
+  JNP304-RE-S:
+    - /volume/build/junos/MAJOR_VERSION_NUMBER/release/VERSION_NUMBER-images/
+  RE-JNP10001-36MR:
+    - /volume/download/docroot/software/junos-evolvedsr/22.2R3-S3-EVO/
+
+#File path to splitcopy.py, the script to split files and transfer it to device using mutiple connections
+split_copy_path: /usr/local/bin/splitcopy
+
+#Following config item will be used to fetch baseline configuration from device. Groups specified in this list will be saved as baseline and will be loaded to the device as baseline config.
+
+baseline_groups:
+  - re0
+  - re1
+  - default
+  - member0
+  - global
+
+credentials_list:
+  -
+    username: 'root'
+    password: 'Juniper'
+  -
+    username: 'regress'
+    password: 'MaRtInI'
+
+fqdn_regex : ^(.+)\.ultralab\.juniper\.net$
+fqdn_suffix : .ultralab.juniper.net
+
+####### Experimental ####################
+# to check whether the target device RE is supported by the junos version fetched from RSI
+hw_compatibility_map:
+  RE-S-2X00x6: 16.1R1
